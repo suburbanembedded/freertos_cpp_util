@@ -30,6 +30,18 @@ void Logger::get_time_str(const uint32_t tick_count, Time_str* const time_str)
 	time_str->assign(buf.data(), buf.size()-1);
 }
 
+void Logger::get_time_str(const uint64_t tick_count, Time_str* const time_str)
+{
+	std::array<char, 16+2+1> buf;
+
+	buf[0] = '0';
+	buf[1] = 'x';
+	Byte_util::u64_to_hex(tick_count, buf.data() + 2);
+	buf.back() = '\0';
+
+	time_str->assign(buf.data(), buf.size()-1);
+}
+
 const char* Logger::LOG_LEVEL_to_str(const LOG_LEVEL level)
 {
 	switch(level)
@@ -127,7 +139,7 @@ bool Logger::log_msg(const LOG_LEVEL level, const char* module_name, const char*
 	Time_str time_str;
 	{
 		const TickType_t tick_count = xTaskGetTickCount();
-		static_assert(sizeof(TickType_t) <= sizeof(uint32_t));
+		static_assert(sizeof(TickType_t) <= sizeof(uint64_t));
 		get_time_str(tick_count, &time_str);
 	}
 
@@ -183,7 +195,7 @@ bool Logger::log_msg_isr(const LOG_LEVEL level, const char* module_name, const c
 	Time_str time_str;
 	{
 		const TickType_t tick_count = xTaskGetTickCountFromISR();
-		static_assert(sizeof(TickType_t) <= sizeof(uint32_t));
+		static_assert(sizeof(TickType_t) <= sizeof(uint64_t));
 		get_time_str(tick_count, &time_str);
 	}
 	
